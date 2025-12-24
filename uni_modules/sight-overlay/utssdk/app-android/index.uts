@@ -1,0 +1,259 @@
+/**
+ * Android 悬浮窗实现
+ * 使用 Android 系统的 WindowManager 实现悬浮窗
+ */
+
+import Context from 'android.content.Context';
+import Intent from 'android.content.Intent';
+import Settings from 'android.provider.Settings';
+import Build from 'android.os.Build';
+import Uri from 'android.net.Uri';
+
+import ViewGroup from 'android.view.ViewGroup';
+import WindowManager from 'android.view.WindowManager';
+import LayoutParams from 'android.view.WindowManager$LayoutParams';
+import Gravity from 'android.view.Gravity';
+import PixelFormat from 'android.graphics.PixelFormat';
+
+import Paint from 'android.graphics.Paint';
+import Color from 'android.graphics.Color';
+import Canvas from 'android.graphics.Canvas';
+
+import View from 'android.view.View';
+import MotionEvent from 'android.view.MotionEvent';
+
+// 配置类型
+export type SightOverlayConfig = {
+  color: string;
+  size: number;
+  thickness: number;
+  showDot: boolean;
+  opacity: number;
+}
+
+// 主上下文
+let mContext: Context | null = null;
+let mWindowManager: WindowManager | null = null;
+let mOverlayView: OverlayView | null = null;
+let mCurrentConfig: SightOverlayConfig | null = null;
+
+/**
+ * 悬浮窗视图 - 自定义绘制准星
+ */
+class OverlayView extends View {
+  private paint: Paint;
+  private dotPaint: Paint;
+
+  constructor(context: Context) {
+    super(context);
+    this.paint = new Paint();
+    this.paint.setAntiAlias(true);
+    this.paint.setStyle(Paint.Style.STROKE);
+
+    this.dotPaint = new Paint();
+    this.dotPaint.setAntiAlias(true);
+    this.dotPaint.setStyle(Paint.Style.FILL);
+  }
+
+  override onDraw(canvas: Canvas) {
+    super.onDraw(canvas);
+
+    const config = mCurrentConfig;
+    if (config == null) return;
+
+    const width = this.getWidth();
+    const height = this.getHeight();
+    const centerX = width.toFloat() / 2;
+    const centerY = height.toFloat() / 2;
+
+    // 转换颜色
+    const color = Color.parseColor(config.color);
+    const alpha = (config.opacity * 255).toInt();
+
+    this.paint.setColor(color);
+    this.paint.setAlpha(alpha);
+
+    this.dotPaint.setColor(color);
+    this.dotPaint.setAlpha(alpha);
+
+    // 计算实际大小（dp 转 px）
+    const density = this.getResources().getDisplayMetrics().density;
+    const sizePx = config.size * density;
+    const dotSizePx = 4 * density;
+    const gap = Math.max(sizePx * 0.2, 5 * density);
+
+    // 绘制十字准星
+    this.paint.setStrokeWidth(config.thickness * density);
+
+    // 上
+    canvas.drawLine(centerX, centerY - sizePx, centerX, centerY - gap, this.paint);
+    // 下
+    canvas.drawLine(centerX, centerY + gap, centerX, centerY + sizePx, this.paint);
+    // 左
+    canvas.drawLine(centerX - sizePx, centerY, centerX - gap, centerY, this.paint);
+    // 右
+    canvas.drawLine(centerX + gap, centerY, centerX + sizePx, centerY, this.paint);
+
+    // 绘制中心点
+    if (config.showDot) {
+      canvas.drawCircle(centerX, centerY, dotSizePx, this.dotPaint);
+    }
+  }
+}
+
+/**
+ * 初始化悬浮窗管理器
+ */
+function initOverlayManager(context: Context): void {
+  if (mContext == null) {
+    mContext = context;
+    mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager;
+  }
+}
+
+/**
+ * 创建布局参数
+ */
+function createLayoutParams(): LayoutParams {
+  let type: number;
+  if (Build.VERSION.SDK_INT >= 26) {
+    type = LayoutParams.TYPE_APPLICATION_OVERLAY;
+  } else {
+    type = LayoutParams.TYPE_PHONE;
+  }
+
+  const flags = LayoutParams.FLAG_NOT_FOCUSABLE |
+                LayoutParams.FLAG_NOT_TOUCHABLE |
+                LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+
+  const layoutParams = new LayoutParams();
+  layoutParams.type = type;
+  layoutParams.flags = flags;
+  layoutParams.format = PixelFormat.TRANSLUCENT;
+  layoutParams.gravity = Gravity.CENTER;
+
+  // 设置大小
+  const size = 200;
+  layoutParams.width = size;
+  layoutParams.height = size;
+
+  return layoutParams;
+}
+
+/**
+ * 显示悬浮窗
+ */
+export function show(config: SightOverlayConfig): void {
+  const context = mContext;
+  if (context == null) {
+    console.error("悬浮窗未初始化，请先调用 init");
+    return;
+  }
+
+  // 检查权限
+  if (!checkPermissionInner(context)) {
+    console.error("没有悬浮窗权限");
+    return;
+  }
+
+  try {
+    // 隐藏已存在的悬浮窗
+    hide();
+
+    mCurrentConfig = config;
+
+    // 创建新视图
+    mOverlayView = new OverlayView(context);
+
+    // 添加到窗口
+    const params = createLayoutParams();
+    mWindowManager?.addView(mOverlayView, params);
+
+    console.log("悬浮窗显示成功");
+  } catch (e: Exception) {
+    console.error("显示悬浮窗失败: " + e.message);
+  }
+}
+
+/**
+ * 隐藏悬浮窗
+ */
+export function hide(): void {
+  try {
+    if (mOverlayView != null && mWindowManager != null) {
+      mWindowManager!.removeView(mOverlayView);
+      mOverlayView = null;
+    }
+  } catch (e: Exception) {
+    console.error("隐藏悬浮窗失败: " + e.message);
+  }
+}
+
+/**
+ * 更新悬浮窗配置
+ */
+export function update(config: SightOverlayConfig): void {
+  mCurrentConfig = config;
+  if (mOverlayView != null) {
+    mOverlayView!.invalidate();
+  }
+}
+
+/**
+ * 释放资源
+ */
+export function release(): void {
+  hide();
+  mContext = null;
+  mWindowManager = null;
+}
+
+/**
+ * 检查权限（内部实现）
+ */
+function checkPermissionInner(context: Context): boolean {
+  if (Build.VERSION.SDK_INT >= 23) {
+    return Settings.canDrawOverlays(context);
+  }
+  return true;
+}
+
+/**
+ * 检查悬浮窗权限
+ */
+export function checkPermission(): boolean {
+  const context = mContext;
+  return context != null && checkPermissionInner(context);
+}
+
+/**
+ * 请求悬浮窗权限
+ */
+export function requestPermission(): void {
+  const context = mContext;
+  if (context == null) {
+    console.error("悬浮窗未初始化");
+    return;
+  }
+
+  if (checkPermissionInner(context)) {
+    return;
+  }
+
+  // Android 6.0+ 需要跳转到设置页面
+  if (Build.VERSION.SDK_INT >= 23) {
+    const intent = new Intent();
+    intent.setAction(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+    intent.setData(Uri.parse("package:" + context.getPackageName()));
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+    context.startActivity(intent);
+  }
+}
+
+/**
+ * 初始化悬浮窗插件
+ */
+export function init(context: Context): void {
+  initOverlayManager(context);
+}

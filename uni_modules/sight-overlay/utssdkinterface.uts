@@ -1,0 +1,58 @@
+/**
+ * 悬浮窗插件接口定义
+ */
+
+/**
+ * 悬浮窗配置接口
+ */
+export type SightOverlayConfig = {
+  /** 准星颜色（十六进制） */
+  color: string;
+  /** 准星大小（dp） */
+  size: number;
+  /** 准星粗细（dp） */
+  thickness: number;
+  /** 是否显示中心点 */
+  showDot: boolean;
+  /** 准星透明度（0-1） */
+  opacity: number;
+}
+
+/**
+ * 悬浮窗控制器接口
+ */
+export interface ISightOverlay {
+  /**
+   * 显示悬浮窗
+   * @param config 悬浮窗配置
+   */
+  show(config: SightOverlayConfig): void;
+
+  /**
+   * 隐藏悬浮窗
+   */
+  hide(): void;
+
+  /**
+   * 更新悬浮窗配置
+   * @param config 新的配置
+   */
+  update(config: SightOverlayConfig): void;
+
+  /**
+   * 释放悬浮窗资源
+   */
+  release(): void;
+
+  /**
+   * 检查悬浮窗权限
+   * @returns 是否有权限
+   */
+  checkPermission(): boolean;
+
+  /**
+   * 请求悬浮窗权限
+   * @returns 是否授权成功
+   */
+  requestPermission(): boolean;
+}
