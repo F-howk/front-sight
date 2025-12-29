@@ -10,6 +10,7 @@ export type SightType =
   | 'circle'       // 圆形准星
   | 'bracket'      // 方括号准星
   | 'chevron'      // V形准星
+  | 'quadrant'     // 象限准星
   | 'custom';      // 自定义准星
 
 /** 准星配置接口 */
@@ -75,6 +76,11 @@ export const PRESET_SIGHTS: Array<PresetSight> = [
     id: 'chevron',
     name: '倒V',
     config: { ...DEFAULT_SIGHT_CONFIG, type: 'chevron', color: '#FF00FF' },
+  },
+  {
+    id: 'quadrant',
+    name: '象限',
+    config: { ...DEFAULT_SIGHT_CONFIG, type: 'quadrant', color: '#00FF00' },
   },
   {
     id: 'large',

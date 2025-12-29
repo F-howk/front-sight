@@ -118,6 +118,7 @@ const settings = ref<Settings>({
 const useOverlay = ref(false);
 // #ifdef APP-PLUS
 const hasPermission = ref(false);
+const permissionCheckTimer = ref<number | null>(null);
 // #endif
 
 const sightTypeNames: Record<string, string> = {
@@ -127,6 +128,7 @@ const sightTypeNames: Record<string, string> = {
   circle: '圆形准星',
   bracket: '方括号准星',
   chevron: 'V形准星',
+  quadrant: '象限准星',
   custom: '自定义',
 };
 
@@ -144,17 +146,27 @@ onMounted(async () => {
 
   // 加载悬浮窗模式设置
   const savedOverlayMode = uni.getStorageSync('use_overlay_mode');
-  if (savedOverlayMode !== undefined) {
-    useOverlay.value = savedOverlayMode;
-    if (savedOverlayMode && settings.value.visible) {
-      showSystemOverlay();
-    }
+  useOverlay.value = savedOverlayMode || false;  // 默认 false
+
+  // 如果悬浮窗模式已开启且准星可见，立即显示悬浮窗
+  if (useOverlay.value && hasPermission.value && settings.value.visible) {
+    showSystemOverlay();
   }
+
+  // 监听应用显示事件（从设置页面返回时）
+  uni.onAppShow(() => {
+    onAppShow();
+  });
   // #endif
 });
 
 onUnmounted(() => {
   // #ifdef APP-PLUS
+  // 清理权限检查定时器
+  if (permissionCheckTimer.value) {
+    clearInterval(permissionCheckTimer.value);
+    permissionCheckTimer.value = null;
+  }
   // 释放悬浮窗资源
   if (useOverlay.value) {
     sightOverlayManager.release();
@@ -188,16 +200,88 @@ const saveSettings = () => {
 };
 
 // #ifdef APP-PLUS
+/**
+ * 应用显示时的处理（从后台返回前台）
+ */
+const onAppShow = () => {
+  // 重新检查权限状态
+  const hadPermission = hasPermission.value;
+  const currentPermission = checkOverlayPermission();
+
+  // 如果之前没有权限，现在有了，显示成功提示
+  if (!hadPermission && currentPermission) {
+    uni.showToast({
+      title: '授权成功',
+      icon: 'success',
+      duration: 1500,
+    });
+
+    // 如果悬浮窗模式已开启且准星可见，立即显示悬浮窗
+    if (useOverlay.value && settings.value.visible) {
+      setTimeout(() => {
+        showSystemOverlay();
+      }, 500);
+    }
+  }
+};
+
+/**
+ * 停止权限检查定时器
+ */
+const stopPermissionCheck = () => {
+  if (permissionCheckTimer.value) {
+    clearInterval(permissionCheckTimer.value);
+    permissionCheckTimer.value = null;
+  }
+};
+// #endif
+
+// #ifdef APP-PLUS
 const checkOverlayPermission = () => {
   hasPermission.value = sightOverlayManager.checkPermission();
+  return hasPermission.value;
 };
 
 const requestPermission = () => {
   sightOverlayManager.requestPermission();
-  // 延迟检查，因为用户需要去设置页面授权
-  setTimeout(() => {
-    checkOverlayPermission();
-  }, 1000);
+
+  // 显示提示信息
+  uni.showToast({
+    title: '请在设置中开启悬浮窗权限',
+    icon: 'none',
+    duration: 2500,
+  });
+
+  // 启动定时检查权限（最多检查 30 秒）
+  let checkCount = 0;
+  const maxChecks = 15; // 15次 * 2秒 = 30秒
+
+  stopPermissionCheck(); // 先清除之前的定时器
+
+  permissionCheckTimer.value = setInterval(() => {
+    checkCount++;
+    const nowHasPermission = checkOverlayPermission();
+
+    if (nowHasPermission) {
+      // 授权成功
+      stopPermissionCheck();
+      uni.showToast({
+        title: '授权成功',
+        icon: 'success',
+        duration: 1500,
+      });
+
+      // 如果悬浮窗模式已开启且准星可见，立即显示悬浮窗
+      if (useOverlay.value && settings.value.visible) {
+        setTimeout(() => {
+          showSystemOverlay();
+        }, 500);
+      }
+    } else if (checkCount >= maxChecks) {
+      // 超时停止检查
+      stopPermissionCheck();
+    }
+  }, 2000);
 };
 
 const toggleOverlayMode = (e: any) => {

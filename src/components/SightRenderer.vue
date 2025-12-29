@@ -127,6 +127,39 @@
             :y2="logicalCenter - config.size * 0.3"
           />
         </template>
+
+        <!-- 象限准星 -->
+        <template v-else-if="config.type === 'quadrant'">
+          <!-- 从中心向四个方向延伸到屏幕边缘 -->
+          <!-- 右侧水平线 -->
+          <line
+            :x1="logicalCenter"
+            :y1="logicalCenter"
+            :x2="200"
+            :y2="logicalCenter"
+          />
+          <!-- 上方垂直线 -->
+          <line
+            :x1="logicalCenter"
+            :y1="logicalCenter"
+            :x2="logicalCenter"
+            :y2="0"
+          />
+          <!-- 左侧水平线 -->
+          <line
+            :x1="logicalCenter"
+            :y1="logicalCenter"
+            :x2="0"
+            :y2="logicalCenter"
+          />
+          <!-- 下方垂直线 -->
+          <line
+            :x1="logicalCenter"
+            :y1="logicalCenter"
+            :x2="logicalCenter"
+            :y2="200"
+          />
+        </template>
       </g>
 
       <!-- 中心点 -->
@@ -290,6 +323,9 @@ const drawSight = () => {
     case 'chevron':
       drawChevron(c, config);
       break;
+    case 'quadrant':
+      drawQuadrant(c, config);
+      break;
   }
 
   if (config.showDot && config.type !== 'dot') {
@@ -396,6 +432,25 @@ const drawChevron = (c: UniApp.CanvasContext, config: SightConfig) => {
   // 上方短线
   c.moveTo(logicalCenter, logicalCenter - config.size);
   c.lineTo(logicalCenter, logicalCenter - config.size * 0.3);
+  c.stroke();
+};
+
+// 绘制象限准星
+const drawQuadrant = (c: UniApp.CanvasContext, config: SightConfig) => {
+  // 象限准星：从中心向四个方向延伸到屏幕边缘
+  c.beginPath();
+  // 右侧水平线 - 从中心延伸到右边缘
+  c.moveTo(logicalCenter, logicalCenter);
+  c.lineTo(logicalCanvasSize, logicalCenter);
+  // 上方垂直线 - 从中心延伸到顶部边缘
+  c.moveTo(logicalCenter, logicalCenter);
+  c.lineTo(logicalCenter, 0);
+  // 左侧水平线 - 从中心延伸到左边缘
+  c.moveTo(logicalCenter, logicalCenter);
+  c.lineTo(0, logicalCenter);
+  // 下方垂直线 - 从中心延伸到底部边缘
+  c.moveTo(logicalCenter, logicalCenter);
+  c.lineTo(logicalCenter, logicalCanvasSize);
   c.stroke();
 };
 

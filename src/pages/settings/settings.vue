@@ -213,6 +213,11 @@ const sightVisible = ref(true);
 const currentConfig = ref<SightConfig>({ ...DEFAULT_SIGHT_CONFIG });
 const currentPresetId = ref<string | null>(null);
 
+// #ifdef APP-PLUS
+const useOverlay = ref(false);
+const hasPermission = ref(false);
+// #endif
+
 // uni-app switch 事件类型
 interface SwitchChangeEvent {
   detail: {
@@ -225,6 +230,14 @@ onMounted(() => {
   const systemInfo = uni.getSystemInfoSync();
   statusBarHeight.value = systemInfo.statusBarHeight || 0;
   loadSettings();
+
+  // #ifdef APP-PLUS
+  // 初始化悬浮窗管理器
+  sightOverlayManager.init();
+  // 加载悬浮窗模式状态
+  useOverlay.value = uni.getStorageSync('use_overlay_mode') || false;
+  hasPermission.value = sightOverlayManager.checkPermission();
+  // #endif
 });
 
 const loadSettings = () => {
@@ -271,6 +284,24 @@ const goBack = () => {
 const toggleSight = () => {
   sightVisible.value = !sightVisible.value;
   saveSettings();
+
+  // #ifdef APP-PLUS
+  // 如果使用悬浮窗模式，同步控制系统悬浮窗
+  if (useOverlay.value) {
+    if (sightVisible.value) {
+      if (hasPermission.value) {
+        sightOverlayManager.show(currentConfig.value);
+      } else {
+        uni.showToast({
+          title: '请先授权悬浮窗权限',
+          icon: 'none',
+        });
+      }
+    } else {
+      sightOverlayManager.hide();
+    }
+  }
+  // #endif
 };
 
 const resetToDefault = () => {
