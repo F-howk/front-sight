@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- 主渐变背景 -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- 准星发光效果 -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- 准星渐变 -->
+    <linearGradient id="sightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00cc6a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 背景圆角矩形 -->
+  <rect x="0" y="0" width="512" height="512" rx="115" ry="115" fill="url(#bgGradient)"/>
+
+  <!-- 外圈装饰环 -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+  <circle cx="256" cy="256" r="165" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <!-- 准星十字线 -->
+  <g filter="url(#glow)">
+    <!-- 水平线 -->
+    <line x1="136" y1="256" x2="216" y2="256" stroke="url(#sightGradient)" stroke-width="6" stroke-linecap="round"/>
+    <line x1="296" y1="256" x2="376" y2="256" stroke="url(#sightGradient)" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- 垂直线 -->
+    <line x1="256" y1="136" x2="256" y2="216" stroke="url(#sightGradient)" stroke-width="6" stroke-linecap="round"/>
+    <line x1="256" y1="296" x2="256" y2="376" stroke="url(#sightGradient)" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- 中心点 -->
+    <circle cx="256" cy="256" r="8" fill="url(#sightGradient)"/>
+    <circle cx="256" cy="256" r="4" fill="#1a1a2e"/>
+  </g>
+
+  <!-- 四角装饰点 -->
+  <g fill="rgba(0, 255, 136, 0.3)">
+    <circle cx="136" cy="256" r="3"/>
+    <circle cx="376" cy="256" r="3"/>
+    <circle cx="256" cy="136" r="3"/>
+    <circle cx="256" cy="376" r="3"/>
+  </g>
+
+  <!-- 战术角标记 -->
+  <g stroke="rgba(0, 255, 136, 0.5)" stroke-width="3" fill="none" stroke-linecap="round">
+    <!-- 左上 -->
+    <path d="M 176 176 L 176 191 L 191 191"/>
+    <!-- 右上 -->
+    <path d="M 336 176 L 336 191 L 321 191"/>
+    <!-- 左下 -->
+    <path d="M 176 336 L 176 321 L 191 321"/>
+    <!-- 右下 -->
+    <path d="M 336 336 L 336 321 L 321 321"/>
+  </g>
+
+  <!-- 内圈辅助线 -->
+  <circle cx="256" cy="256" r="80" fill="none" stroke="rgba(0, 255, 136, 0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- 底部文字标识 -->
+  <text x="256" y="440" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="rgba(255,255,255,0.7)" text-anchor="middle" letter-spacing="4">FRONT SIGHT</text>
+  <text x="256" y="470" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" fill="rgba(255,255,255,0.4)" text-anchor="middle" letter-spacing="2">准星助手</text>
+</svg>

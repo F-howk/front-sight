@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- 背景 - 深色 -->
+  <rect x="0" y="0" width="512" height="512" rx="115" ry="115" fill="#1a1a2e"/>
+
+  <!-- 简化的准星符号 -->
+  <g fill="#00ff88">
+    <!-- 中心十字 -->
+    <rect x="216" y="126" width="80" height="16" rx="8"/>
+    <rect x="216" y="370" width="80" height="16" rx="8"/>
+    <rect x="126" y="216" width="16" height="80" rx="8"/>
+    <rect x="370" y="216" width="16" height="80" rx="8"/>
+
+    <!-- 中心点 -->
+    <circle cx="256" cy="256" r="24"/>
+    <circle cx="256" cy="256" r="12" fill="#1a1a2e"/>
+  </g>
+
+  <!-- 战术角 -->
+  <g fill="#00ff88">
+    <path d="M 166 166 L 186 166 L 186 176 L 176 176 L 176 186 L 166 186 Z"/>
+    <path d="M 326 166 L 346 166 L 346 186 L 336 186 L 336 176 L 326 176 Z"/>
+    <path d="M 166 326 L 186 326 L 186 336 L 176 336 L 176 346 L 166 346 Z"/>
+    <path d="M 326 326 L 346 326 L 346 346 L 336 346 L 336 336 L 326 336 Z"/>
+  </g>
+</svg>

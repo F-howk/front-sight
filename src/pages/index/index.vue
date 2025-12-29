@@ -12,7 +12,7 @@
     <!-- 主界面 -->
     <view class="main-content" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="header">
-        <image class="logo" src="/static/logo.png" />
+        <image class="logo" src="/static/logo-icon.svg" />
         <text class="title">准星助手</text>
         <text class="subtitle">Front Sight</text>
       </view>

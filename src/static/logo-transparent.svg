@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- 准星发光效果 -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- 准星渐变 -->
+    <linearGradient id="sightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00cc6a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 准星十字线 -->
+  <g filter="url(#glow)">
+    <!-- 水平线 -->
+    <line x1="126" y1="256" x2="216" y2="256" stroke="url(#sightGradient)" stroke-width="8" stroke-linecap="round"/>
+    <line x1="296" y1="256" x2="386" y2="256" stroke="url(#sightGradient)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- 垂直线 -->
+    <line x1="256" y1="126" x2="256" y2="216" stroke="url(#sightGradient)" stroke-width="8" stroke-linecap="round"/>
+    <line x1="256" y1="296" x2="256" y2="386" stroke="url(#sightGradient)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- 中心点 -->
+    <circle cx="256" cy="256" r="10" fill="url(#sightGradient)"/>
+    <circle cx="256" cy="256" r="5" fill="#1a1a2e" fill-opacity="0.9"/>
+  </g>
+
+  <!-- 四角装饰点 -->
+  <g fill="rgba(0, 255, 136, 0.6)">
+    <circle cx="126" cy="256" r="4"/>
+    <circle cx="386" cy="256" r="4"/>
+    <circle cx="256" cy="126" r="4"/>
+    <circle cx="256" cy="386" r="4"/>
+  </g>
+
+  <!-- 战术角标记 -->
+  <g stroke="rgba(0, 255, 136, 0.7)" stroke-width="4" fill="none" stroke-linecap="round">
+    <!-- 左上 -->
+    <path d="M 166 166 L 166 186 L 186 186"/>
+    <!-- 右上 -->
+    <path d="M 346 166 L 346 186 L 326 186"/>
+    <!-- 左下 -->
+    <path d="M 166 346 L 166 326 L 186 326"/>
+    <!-- 右下 -->
+    <path d="M 346 346 L 346 326 L 326 326"/>
+  </g>
+
+  <!-- 内圈辅助线 -->
+  <circle cx="256" cy="256" r="90" fill="none" stroke="rgba(0, 255, 136, 0.3)" stroke-width="2" stroke-dasharray="6 6"/>
+</svg>
