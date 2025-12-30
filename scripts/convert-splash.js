@@ -2,8 +2,8 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const svgPath = path.join(__dirname, '../native/splash/splash.svg');
-const pngPath = path.join(__dirname, '../native/splash/splash.png');
+const svgPath = path.join(__dirname, '../src/static/splash.svg');
+const pngPath = path.join(__dirname, '../src/static/splash.png');
 
 async function convertSvgToPng() {
   try {
